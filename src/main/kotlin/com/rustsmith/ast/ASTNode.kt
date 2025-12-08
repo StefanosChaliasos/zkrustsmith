@@ -62,7 +62,11 @@ data class Program(
     }
 }
 
-fun generateProgram(programSeed: Long, identGenerator: IdentGenerator, failFast: Boolean): Pair<Program, List<String>> {
+fun generateProgram(
+    programSeed: Long,
+    identGenerator: IdentGenerator,
+    failFast: Boolean
+): Triple<Program, List<String>, List<LiteralType>> {
     val functionSymbolTable = FunctionSymbolTable()
     val globalSymbolTable = GlobalSymbolTable()
     val symbolTable = SymbolTable(SymbolTable(null, functionSymbolTable, globalSymbolTable), functionSymbolTable, globalSymbolTable)
@@ -80,6 +84,18 @@ fun generateProgram(programSeed: Long, identGenerator: IdentGenerator, failFast:
         forceNoInline = false,
         addSelfVariable = false
     )
-    val cliArguments = symbolTable.globalSymbolTable.commandLineTypes.map { astGenerator.generateCLIArgumentsForLiteralType(it, mainFunctionContext) }
-    return Program(programSeed, setOf(), constantDeclarations, globalSymbolTable.typeAliases.toList(), globalSymbolTable.structs.toList(), functionSymbolTable.functions + mainFunction) to cliArguments
+    val cliTypes = symbolTable.globalSymbolTable.commandLineTypes.toList()
+    val cliArguments = cliTypes.map { astGenerator.generateCLIArgumentsForLiteralType(it, mainFunctionContext) }
+    return Triple(
+        Program(
+            programSeed,
+            setOf(),
+            constantDeclarations,
+            globalSymbolTable.typeAliases.toList(),
+            globalSymbolTable.structs.toList(),
+            functionSymbolTable.functions + mainFunction
+        ),
+        cliArguments,
+        cliTypes
+    )
 }

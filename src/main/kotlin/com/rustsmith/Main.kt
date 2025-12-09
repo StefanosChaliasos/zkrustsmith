@@ -31,6 +31,7 @@ import kotlin.random.Random
 
 lateinit var CustomRandom: Random
 lateinit var selectionManager: SelectionManager
+var USizeWidthBits: Int = 64
 
 class RustSmith : CliktCommand(name = "rustsmith") {
     private val count: Int by option(help = "No. of files", names = arrayOf("-n", "-count")).int().default(100)
@@ -48,6 +49,10 @@ class RustSmith : CliktCommand(name = "rustsmith") {
         help = "Emit zkVM-style output under <dir>/{native,input}",
         names = arrayOf("--zkvm")
     ).flag(default = false)
+    private val usizeWidth: Int by option(
+        help = "usize width in bits (32 or 64)",
+        names = arrayOf("--usize-width")
+    ).int().default(64)
 
     enum class SelectionManagerOptions {
         BASE_SELECTION,
@@ -82,6 +87,7 @@ class RustSmith : CliktCommand(name = "rustsmith") {
                     val randomSeed = seed ?: Random.nextLong()
                     val identGenerator = IdentGenerator()
                     CustomRandom = Random(randomSeed)
+                    USizeWidthBits = if (usizeWidth == 32) 32 else 64
                     selectionManager = getSelectionManager().random(CustomRandom)
                     Logger.logText("Chosen selection manager ${selectionManager::class}", null, Color.YELLOW)
                     val reconditioner = Reconditioner()

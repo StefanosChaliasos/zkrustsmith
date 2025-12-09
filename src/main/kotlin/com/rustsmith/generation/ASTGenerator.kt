@@ -3,6 +3,7 @@ package com.rustsmith.generation
 import AbstractASTGenerator
 import com.andreapivetta.kolor.Color
 import com.rustsmith.CustomRandom
+import com.rustsmith.USizeWidthBits
 import com.rustsmith.ast.*
 import com.rustsmith.exceptions.ExpressionGenerationRejectedException
 import com.rustsmith.exceptions.NoAvailableExpressionException
@@ -526,7 +527,8 @@ class ASTGenerator(
     }
 
     override fun generateUSizeLiteral(type: Type, ctx: Context): USizeLiteral {
-        return USizeLiteral(CustomRandom.nextULong(), symbolTable)
+        val v = if (USizeWidthBits == 32) CustomRandom.nextUInt().toULong() else CustomRandom.nextULong()
+        return USizeLiteral(v, symbolTable)
     }
 
     override fun generateFloat32Literal(type: Type, ctx: Context): Float32Literal =
